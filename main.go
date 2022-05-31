@@ -1,10 +1,11 @@
 package main
 
 import (
+	"crowfundingapp/handler"
 	"crowfundingapp/user"
-	"fmt"
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -17,23 +18,20 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	fmt.Println("Connection Successfull")
+	userRepository := user.NewRepository(db)
+	userService := user.NewService(userRepository)
 
-	var users []user.User
-	length := len(users)
-	fmt.Println(length)
+	userHandler := handler.NewUserHandler(userService)
+
+	router := gin.Default()
+	api := router.Group("/api/v1")
+
+	api.POST("/users", userHandler.RegisterUser)
+
+	router.Run()
 
 
-	db.Find(&users)
-
-	length = len(users)
-	fmt.Println(length)
 
 
-	for _, user := range users {
-		fmt.Println(user.Name)
-		fmt.Println(user.Email)
-		fmt.Println("===================")
-
-	}
+	
 }
